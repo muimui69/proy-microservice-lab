@@ -76,7 +76,8 @@ jobs:
           IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/demo-microservice-lab:latest
           APP_PORT: ${{ env.APP_PORT }}
         run: |
-          ssh -i ~/.ssh/id_rsa -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes "$USER@$HOST" << 'EOF'
+          set -euo pipefail
+          ssh -o IdentitiesOnly=no -o StrictHostKeyChecking=yes ec2-user@"$HOST" << 'EOF'
           set -euxo pipefail
           sudo systemctl start docker
           docker network inspect appnet >/dev/null 2>&1 || docker network create appnet
