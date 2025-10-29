@@ -51,19 +51,26 @@ jobs:
       - name: Instalar cliente SSH
         run: sudo apt-get update && sudo apt-get install -y openssh-client
 
-      - name: Configurar llave SSH (secret en texto)
+      - name: Cargar clave privada en ssh-agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
+
+      - name: Registrar known_hosts
         env:
           EC2_HOST: ${{ secrets.EC2_HOST }}
         run: |
-          set -Eeuo pipefail
+          set -euo pipefail
           mkdir -p ~/.ssh
-          printf '%s' "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
-          sed -i 's/\r$//' ~/.ssh/id_rsa
-          perl -0777 -pe 's/\\n/\n/g' -i ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          eval "$(ssh-agent -s)"
-          ssh-add ~/.ssh/id_rsa
           ssh-keyscan -T 10 -H "$EC2_HOST" >> ~/.ssh/known_hosts 2>/dev/null || true
+
+      - name: Probar conexión SSH (verbose)
+        env:
+          HOST: ${{ secrets.EC2_HOST }}
+          USER: ${{ secrets.EC2_USER }} # Amazon Linux 2023: ec2-user
+        run: |
+          set -euo pipefail
+          ssh -vvv -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes "$USER@$HOST" 'whoami && uname -a'
 
       - name: Desplegar contenedor en EC2
         env:
