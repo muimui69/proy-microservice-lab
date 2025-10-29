@@ -56,6 +56,11 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
 
+      - name: Ver fingerprint de la clave cargada en el agent
+        run: |
+          set -euo pipefail
+          ssh-add -l -E sha256
+
       - name: Registrar known_hosts
         env:
           EC2_HOST: ${{ secrets.EC2_HOST }}
@@ -63,14 +68,6 @@ jobs:
           set -euo pipefail
           mkdir -p ~/.ssh
           ssh-keyscan -T 10 -H "$EC2_HOST" >> ~/.ssh/known_hosts 2>/dev/null || true
-
-      - name: Probar conexión SSH (verbose)
-        env:
-          HOST: ${{ secrets.EC2_HOST }}
-          USER: ${{ secrets.EC2_USER }} # Amazon Linux 2023: ec2-user
-        run: |
-          set -euo pipefail
-          ssh -vvv -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes "$USER@$HOST" 'whoami && uname -a'
 
       - name: Desplegar contenedor en EC2
         env:
