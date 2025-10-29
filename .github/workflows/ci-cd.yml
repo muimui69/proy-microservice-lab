@@ -38,7 +38,7 @@ jobs:
       - name: Iniciar sesion en Docker Hub
         run: |
           # Usar las credenciales de token de secret
-          echo "${{secrets.DOCKERHUB_TOKEN}} | docker login -u "${{secrets.DOCKERHUB_USERNAME}}" --password-stdin
+          echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
       - name: Publicar la imagen (latest)
         run: docker push $IMAGE_NAME:latest
@@ -55,15 +55,15 @@ jobs:
         run: |
           # creamos la carpeta .ssh y guardamos la llave privada que tiene secrets
           mkdir -p ~/.ssh
-          echo "${{secrets.EC2_SSH_KEY}}" > ~/.ssh/id_rsa
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H "${{secrets.EC2_HOST}}" >> ~/.ssh/know_hosts
+          ssh-keyscan -H "${{ secrets.EC2_HOST }}" >> ~/.ssh/know_hosts
 
       - name: Desplegamos el contenedor en EC2
         env:
-          HOST: ${{secrets.EC2_HOST}}
-          USER: ${{secrets.EC2_USER}}
-          IMAGE: ${{secrets.DOCKERHUB_USERNAME}}/demo-microservice-lab
+          HOST: ${{ secrets.EC2_HOST }}
+          USER: ${{ secrets.EC2_USER }}
+          IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/demo-microservice-lab
         run: |
           ssh -i ~/.ssh/id_rsa -o IdentitiesOnly=yes -o StrictHostKeyChecking -l "$USER" "$HOST" << EOF
           set -euxo pipefial
