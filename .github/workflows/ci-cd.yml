@@ -51,19 +51,18 @@ jobs:
       - name: Instalar cliente SSH
         run: sudo apt-get update && sudo apt-get install -y openssh-client
 
-      - name: Configurar llave SSH
+      - name: Configurar llave SSH (secret en texto)
         env:
           EC2_HOST: ${{ secrets.EC2_HOST }}
         run: |
-          set -euxo pipefail
+          set -Eeuo pipefail
           mkdir -p ~/.ssh
+          printf '%s' "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
           sed -i 's/\r$//' ~/.ssh/id_rsa
           perl -0777 -pe 's/\\n/\n/g' -i ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-
           eval "$(ssh-agent -s)"
           ssh-add ~/.ssh/id_rsa
-
           ssh-keyscan -T 10 -H "$EC2_HOST" >> ~/.ssh/known_hosts 2>/dev/null || true
 
       - name: Desplegar contenedor en EC2
