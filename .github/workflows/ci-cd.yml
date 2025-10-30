@@ -81,7 +81,7 @@ jobs:
       - name: Desplegar contenedor en EC2
         env:
           HOST: ${{ secrets.EC2_HOST }}
-          IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/demo-microservice-lab:latest
+          IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/proy-microservice-lab:latest
           APP_PORT: ${{ env.APP_PORT }}
         run: |
           set -euo pipefail
@@ -96,10 +96,10 @@ jobs:
           fi
 
           docker network inspect appnet >/dev/null 2>&1 || docker network create appnet
-          docker ps -q --filter "name=demo-microservice-lab" | grep -q . && docker stop demo-microservice-lab || true
-          docker ps -aq --filter "name=demo-microservice-lab" | grep -q . && docker rm demo-microservice-lab || true
+          docker ps -q --filter "name=proy-microservice-lab" | grep -q . && docker stop proy-microservice-lab || true
+          docker ps -aq --filter "name=proy-microservice-lab" | grep -q . && docker rm proy-microservice-lab || true
 
           docker pull "$IMAGE"
-          docker run -d --name demo-microservice-lab --restart unless-stopped \
+          docker run -d --name proy-microservice-lab --restart unless-stopped \
             --network appnet -p 80:"$APP_PORT" "$IMAGE"
           EOF
