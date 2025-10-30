@@ -7,7 +7,7 @@ on:
     branches: ["main"]
 
 env:
-  IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/demo-microservice-lab
+  IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/proy-microservice-lab
   APP_PORT: ${{ secrets.APP_PORT || 3000 }}
 
 jobs:
